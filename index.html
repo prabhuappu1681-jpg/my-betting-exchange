@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PRO BET EXCHANGE</title>
+    <style>
+        body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; }
+        .header { background: #1e293b; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .wallet { background: #059669; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
+        .match-list { margin-top: 20px; }
+        .card { background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; border: 1px solid #334155; }
+        .btn { border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        .back { background: #3b82f6; color: white; }
+        .lay { background: #f43f5e; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏏 PRO BET</h1>
+        <div class="wallet">WALLET: <span id="balance">10,000</span> pts</div>
+    </div>
+    <div class="match-list" id="matches">Loading...</div>
+
+    <script>
+        async function getMatches() {
+            const res = await fetch('/matches');
+            const result = await res.json();
+            const container = document.getElementById('matches');
+            container.innerHTML = '';
+            
+            result.data.forEach(m => {
+                container.innerHTML += `
+                    <div class="card">
+                        <div><b>${m.name}</b><br><small>${m.status}</small></div>
+                        <div>
+                            <button class="btn back" onclick="bet()">BACK</button>
+                            <button class="btn lay" onclick="bet()">LAY</button>
+                        </div>
+                    </div>`;
+            });
+        }
+        function bet() {
+            let bal = document.getElementById('balance');
+            bal.innerText = parseInt(bal.innerText) - 100;
+            alert('Bet Placed Successfully Machi!');
+        }
+        getMatches();
+    </script>
+</body>
+</html>
