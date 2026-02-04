@@ -1,7 +1,7 @@
 {
   "name": "my-betting-exchange",
   "version": "1.0.0",
-  "description": "Pro Betting Exchange with Real Matches",
+  "description": "Pro Betting with Real Matches",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
