@@ -1,33 +1,50 @@
-require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors');
+const path = require('path');
+require('dotenv').config();
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(cors());
+app.use(express.static(path.join(__dirname)));
 
-app.use(express.static('.'));
+// API KEY Render Environment Variables-la irundhu edukkum
+const API_KEY = process.env.API_KEY || '486acfbf-ddbc-4a77-9543-3e65fad70a9b';
 
-// Live Matches Fetching with Error Handling
+// 1. Matches Fetch Pannum (Upcoming & Live)
 app.get('/matches', async (req, res) => {
     try {
-        const apiKey = process.env.API_KEY.trim();
-        const response = await axios.get(`https://api.cricketdata.org/v1/currentMatches?apikey=${apiKey}`);
+        // 'matches' endpoint use panna thaan upcoming matches list varum
+        const response = await axios.get(`https://api.cricketdata.org/v1/matches?apikey=${API_KEY.trim()}&offset=0`);
         
-        if (response.data.status !== "success") {
-            return res.json({ status: "dummy", data: [
-                { id: "1", name: "India vs Pakistan (Live Dummy)", status: "Match starting soon..." },
-                { id: "2", name: "Australia vs England (Live Dummy)", status: "In Progress" }
-            ]});
+        if (response.data && response.data.data) {
+            res.json(response.data);
+        } else {
+            // Data illana Dummy data (Testing-kku)
+            res.json({
+                data: [
+                    { name: "RCB vs DC (Feb 5) - Real Data Loading...", status: "Upcoming", id: "dummy1" },
+                    { name: "CSK vs MI (Feb 7) - Real Data Loading...", status: "Upcoming", id: "dummy2" }
+                ]
+            });
         }
-        res.json(response.data);
     } catch (error) {
-        // API failed aana namma dummy matches-ah kaattuvom (testing-kku)
-        res.json({ status: "dummy", data: [
-            { id: "1", name: "India vs Pakistan (Live Dummy)", status: "Match starting soon..." },
-            { id: "2", name: "Australia vs England (Live Dummy)", status: "In Progress" }
-        ]});
+        console.error("API Error:", error.message);
+        res.json({ error: "API connection issue machi!" });
     }
 });
 
+// 2. Score Fetch Pannum
+app.get('/score/:id', async (req, res) => {
+    try {
+        const response = await axios.get(`https://api.cricketdata.org/v1/match_scorecard?apikey=${API_KEY.trim()}&id=${req.params.id}`);
+        res.json(response.data);
+    } catch (error) {
+        res.json({ error: "Score fetch error" });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`✅ Professional Server live at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
